@@ -85,6 +85,7 @@ namespace ap {
 		void setData() override;
 
 	};
+	// the circle class is still under development which is why the class has methods that are incomplete
 	class Circle : public Entity
 	{
 	public:
@@ -92,7 +93,7 @@ namespace ap {
 		void setPosition(const Vec2f& pos) override;
 		void setColor(const Vec4f& color)  override;
 		void setColor(const Vec3f& color)  override;
-		void setSize(const Vec2f& size)    override {}  // will not be used so no reason to be virtual i'm just retarded
+		void setSize(const Vec2f& size)    override {}  // will not be used so no reason to be virtual
 		void setRadius(float radius);
 		void rotate(float degrees)         override {}
 	    size_t getNumIndicies()			   override;
