@@ -207,6 +207,7 @@ namespace ap {
 		// assert
 		return m_verticies[index];
 	}
+	// this method is underdevelopment because it may be used by the circle class. So if the algorithm looks stupid or doesn't make sense, that's why
 	void Triangle::rotate(float degrees)
 	{
 		float radius = 0.0f;
@@ -269,7 +270,7 @@ namespace ap {
 	{
 		m_color = Vec4f(color.r, color.g, color.b, 1.0f);
 	}
-	// a circle is just an array of triangles
+	// a circle is just an array of triangles. This will be implemented later when I can successfully figure out the rest of the circle class.
 	void Circle::setData()
 	{
 		
