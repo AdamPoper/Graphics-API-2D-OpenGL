@@ -35,10 +35,9 @@ namespace ap {
         // if circle add the individual triangles as entity pointers
         m_entities.push_back(ent);
     }
-    // the main purpose for onUpdate() is to poulate the vertex buffer and index buffer with data because the renderer uses dynamic batch renderering.
-    // the renderer stores an std::vector of pointers to any kind of Entity so it always knows where to get the data from
     void Renderer::onUpdate()
     {   
+        //std::cout << __FILE__ << " " << glGetError() << " " << __LINE__ << std::endl;
         glClear(GL_COLOR_BUFFER_BIT);
         m_vertexBuffer->clearVertexBuffer();
         m_indexBuffer->clearIndexBuffer();
@@ -54,11 +53,13 @@ namespace ap {
             {                              
                 e->getTexture()->Bind((uint32_t)e->getTextureIndex());
             }
-        }                
+        } 
+        
         m_vertexBuffer->setDynamicGeometry();
         m_shaderProgram->addMatrix4fv(m_MVP, "u_MVP");
         glDrawElements(GL_TRIANGLES, m_indexBuffer->Count(), GL_UNSIGNED_INT, nullptr);
         m_entities.clear();
+        //std::cout << __FILE__ << " " << glGetError() << " " << __LINE__ << std::endl;
     }
     void Renderer::Blend() const
     {
