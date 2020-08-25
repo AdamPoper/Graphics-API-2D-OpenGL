@@ -1,12 +1,14 @@
 #include "VertexBuffer.h"
+
 #include <iostream>
 VertexBuffer::VertexBuffer()
 	: m_renderID(0)
 {
 	glGenBuffers(1, &m_renderID);
 	glBindBuffer(GL_ARRAY_BUFFER, m_renderID);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 5000, nullptr, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(ap::Vertex) * 10000, nullptr, GL_DYNAMIC_DRAW);
 	// make the gpu buffer fuck all huge to start
+	std::cout << sizeof(ap::Vertex) << std::endl;
 	std::cout << __FILE__ << " " << glGetError() << " " << __LINE__ << std::endl;
 }
 VertexBuffer::VertexBuffer(float* data, size_t size)
