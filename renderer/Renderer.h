@@ -5,9 +5,10 @@
 #include "VertexArray.h"
 #include "ShaderProgram.h"
 #include "Window.h"
-#include "Entity.h"
 #include "Texture.h"
+#include "Entity.h"
 #include "Camera.h"
+#include "../API_Tools/Clock.h"
 #include <assert.h>
 
 namespace ap {
