@@ -9,13 +9,13 @@ namespace ap {
 	{
 		m_size = { 0.0f, 0.0f };
 		m_position = { 0.0f, 0.0f };
-		m_color = { 1.0f, 1.0f, 1.0f, 1.0f };  // white by default
-		m_model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+		m_color = { 1.0f, 1.0f, 1.0f, 1.0f };  // white by default		
 		m_texture = nullptr;
+		m_textureIndex = NULL;
 	}
 	
-	const size_t Quad::s_numIndicies  = 6;
-	const size_t Quad::s_numVerticies = 4;
+	const size_t Quad::s_numIndicies = (const size_t)Entity::IndexCount::IndiciesQuad;
+	const size_t Quad::s_numVerticies = (const size_t)Entity::VertexCount::VerticiesQuad;
 	float Entity::s_nextTextureIndex = 0.0f;
 	std::unordered_map<Texture*, float> Entity::s_texturesCache;
 	Quad::Quad()
@@ -28,30 +28,9 @@ namespace ap {
 		}
 		m_size = { 0.0f, 0.0f };
 		m_position = { 0.0f, 0.0f };
-		m_color = { 1.0f, 1.0f, 1.0f, 1.0f };  // white by default
-		m_model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+		m_color = { 1.0f, 1.0f, 1.0f, 1.0f };  // white by default		
 	}
-	void Quad::setColor(const Vec4f& color)
-	{
-		this->m_color = color;
-		setData();
-	}
-	void Quad::setPosition(const Vec2f& pos)
-	{
-		this->m_position = pos;
-		// manually set all the vertex positions based on the size
-		setData();
-	}
-	void Quad::setSize(const Vec2f& size)
-	{
-		this->m_size = size;
-		setData();
-	}
-	void Quad::setColor(const Vec3f& color)
-	{
-		m_color = { color.r, color.g, color.b, 1.0f }; // by default m_color alpha is 1.0f
-		setData();
-	}
+	
 	void Quad::setData()
 	{
 		for (auto& v : m_verticies)
@@ -80,11 +59,11 @@ namespace ap {
 		m_verticies[3].texCoords.y = 0.0f;		
 	}
 
-	size_t Quad::getNumIndicies()
+	const size_t Quad::getNumIndicies()
 	{
 		return s_numIndicies;
 	}
-	size_t Quad::getNumVerticies()
+	const size_t Quad::getNumVerticies()
 	{
 		return s_numVerticies;
 	}
@@ -104,10 +83,7 @@ namespace ap {
 	{
 		return m_verticies.data();
 	}
-	const glm::mat4& Entity::getModel() const
-	{
-		return m_model;
-	}
+	
 	const float Entity::getTextureIndex() const
 	{
 		return m_textureIndex;
@@ -145,8 +121,28 @@ namespace ap {
 		m_position.y += offset.y;
 		setData();
 	}
-	const size_t Triangle::s_numIndicies  = 3;
-	const size_t Triangle::s_numVerticies = 3;
+	void Entity::setColor(const Vec3f& c)
+	{
+		m_color = Vec4f(c.r, c.g, c.b, 1.0f);
+		setData();
+	}
+	void Entity::setColor(const Vec4f& c)
+	{
+		m_color = c;
+		setData();
+	}
+	void Entity::setSize(const Vec2f& s)
+	{
+		m_size = s;
+		setData();
+	}
+	void Entity::setPosition(const Vec2f& pos)
+	{
+		m_position = pos;
+		setData();
+	}
+	const size_t Triangle::s_numIndicies = (const size_t)Entity::IndexCount::IndiciesTriangle;
+	const size_t Triangle::s_numVerticies = (const size_t)Entity::VertexCount::VerticiesTriangle;
 	Triangle::Triangle()
 	{
 		m_verticies.reserve(s_numVerticies);
@@ -158,28 +154,9 @@ namespace ap {
 		m_size     = { 0.0f, 0.0f };
 		m_position = { 0.0f, 0.0f };
 		m_color    = { 1.0f, 1.0f, 1.0f, 1.0f };  // white by default
-		m_model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+		//m_model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
 	}
-	void Triangle::setColor(const Vec4f& color)
-	{
-		m_color = color;
-		setData();
-	}
-	void Triangle::setColor(const Vec3f& color)
-	{
-		m_color = { color.r, color.g, color.b, 1.0f };
-		setData();
-	}
-	void Triangle::setPosition(const Vec2f& pos)
-	{
-		m_position = pos;
-		setData();
-	}
-	void Triangle::setSize(const Vec2f& size)
-	{
-		m_size = size;
-		setData();
-	}
+	
 	void Triangle::setData()
 	{
 		for (auto& v : m_verticies)
@@ -207,7 +184,6 @@ namespace ap {
 		// assert
 		return m_verticies[index];
 	}
-	// this method is underdevelopment because it may be used by the circle class. So if the algorithm looks stupid or doesn't make sense, that's why
 	void Triangle::rotate(float degrees)
 	{
 		float radius = 0.0f;
@@ -228,59 +204,12 @@ namespace ap {
 			std::cout << "Angle vertex 2: " << angleVertex2 << std::endl;
 		}
 	}
-	size_t Triangle::getNumIndicies()  
+	const size_t Triangle::getNumIndicies()  
 	{
 		return s_numIndicies;
 	}
-	size_t Triangle::getNumVerticies() 
+	const size_t Triangle::getNumVerticies() 
 	{
 		return s_numVerticies;
-	}
-	const size_t Circle::s_numVerticies = 9;
-	const size_t Circle::s_numIndicies  = 48;
-	Circle::Circle()
-		: m_radius(0.0f)
-	{
-		m_verticies.reserve(s_numVerticies);
-		for (int i = 0; i < s_numVerticies; i++)
-		{
-			Vertex temp;
-			m_verticies.emplace_back(temp);
-		}
-		m_size = { 0.0f, 0.0f };
-		m_position = { 0.0f, 0.0f };
-		m_color = { 1.0f, 1.0f, 1.0f, 1.0f };  // white by default
-	}
-	void Circle::setPosition(const Vec2f& pos)
-	{
-		m_position = pos;
-		setData();
-	}
-	void Circle::setColor(const Vec4f& color)
-	{
-		m_color = color;
-		setData();
-	}
-	void Circle::setRadius(float r)
-	{
-		m_radius = r;
-	}
-	
-	void Circle::setColor(const Vec3f& color)
-	{
-		m_color = Vec4f(color.r, color.g, color.b, 1.0f);
-	}
-	// a circle is just an array of triangles. This will be implemented later when I can successfully figure out the rest of the circle class.
-	void Circle::setData()
-	{
-		
-	}
-	size_t Circle::getNumIndicies()
-	{
-		return s_numIndicies;
-	}
-	size_t Circle::getNumVerticies()
-	{
-		return s_numVerticies;
-	}
+	}	
 }
