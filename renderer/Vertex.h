@@ -1,51 +1,38 @@
 #pragma once
 #include <iostream>
 #include <GL/glew.h>
+#include "../glm/glm.hpp"
+
 typedef unsigned int uint32_t;
 namespace ap {
 
-	struct Vec2f
-	{
-		Vec2f() = default;
-		Vec2f(float x, float y)
-			: x(x), y(y) {}
-		float x, y;
-	};
-	union Vec3f
-	{
-		Vec3f() = default;
-		Vec3f(float x, float y, float z)
-			: x(x), y(y), z(z) {}
-		struct
-		{
-			float x, y, z;
-		};
-		struct
-		{
-			float r, g, b;
-		};
-	};
-	union Vec4f
-	{
-		Vec4f() = default;
-		Vec4f(float x, float y, float z, float w)
-			: x(x), y(y), z(z), w(w) {}
-		struct
-		{
-			float x, y, z, w;
-		};
-		struct
-		{
-			float r, g, b, a;
-		};
-	};
+	using Vec2f = glm::vec2;
+	using Vec3f = glm::vec3;
+	using Vec4f = glm::vec4;
+	
 	struct Vertex
 	{
-		Vec2f position;
-		Vec4f color;
-		Vec2f texCoords;
+		glm::vec2 position;
+		glm::vec4 color;
+		glm::vec2 texCoords;
 		float textureSlot;
 		float hasTexture;
 		static uint32_t CountFloats() {	return 6; }	
 	};
+
+	struct Color
+	{
+		static Vec4f Blue;
+		static Vec4f Red;
+		static Vec4f Green;
+		static Vec4f Cyan;
+		static Vec4f Pink;
+		static Vec4f Purple;
+		static Vec4f White;
+		static Vec4f Gray;
+		static Vec4f Black;
+		static Vec4f Yellow;
+		static Vec4f Orange;
+	};
+
 }

@@ -20,11 +20,13 @@ namespace ap {
 		std::cout << "GL Error: " << glGetError() << " " << __FILE__ << " " << __LINE__ << std::endl;
 		//glBindTexture(GL_TEXTURE_2D, 0);
 		std::cout << "GL Error: " << glGetError() << " " << __FILE__ << " " << __LINE__ << std::endl;
+		/*
 		if (m_buffer != nullptr)
 		{
 			//std::cout << "Freeing Texture Buffer" << std::endl;
 			stbi_image_free(m_buffer);
 		}
+		*/
 	}
 	Texture::~Texture()
 	{
@@ -33,6 +35,9 @@ namespace ap {
 	}
 	void Texture::Bind(uint32_t slot) const  // slot is optional
 	{
+		//glActiveTexture(GL_TEXTURE0 + slot);
+		//glBindTexture(GL_TEXTURE_2D, m_renderID);
+		//glTexSubImage2D(GL_TEXTURE_2D, 0, 100, 0, m_width-100, m_height-100, GL_RGBA, GL_UNSIGNED_BYTE, m_buffer);
 		glBindTextureUnit(slot, m_renderID);		
 	}
 	void Texture::UnBind() const

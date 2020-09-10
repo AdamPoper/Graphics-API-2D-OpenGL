@@ -13,6 +13,8 @@ namespace ap {
 		~Texture();
 		friend class Renderer;
 		friend class Entity;
+		inline int Width()  { return m_width; }
+		inline int Height() { return m_height; }
 	private:
 		void Bind(uint32_t slot = 0) const;
 		void UnBind() const;
@@ -20,6 +22,6 @@ namespace ap {
 		uint32_t m_renderID;
 		std::string m_filePath;
 		unsigned char* m_buffer;
-		int m_width, m_height, m_bpp;
+		int m_width, m_height, m_bpp;		
 	};
 }

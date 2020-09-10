@@ -59,7 +59,23 @@ void IndexBuffer::updateIndicies(size_t numindicies)
 	}
 		break;
 	default :
-		std::cout << "No More Index Options Available" << std::endl;
+		{		
+			const size_t triangleCount = numindicies - 2;
+			// This algorithm uses the number of triangles to be rendered rather than the number of indicies
+			// the amount of triangles for any arbituary entity is always the number of verticies - 2
+			// centerIdx is the first vertex to be rendered for each triangle and new triangles are formed from this vertex
+			uint32_t centerIdx = m_maxIndex; m_maxIndex++;
+			for (int i = 0; i < triangleCount; i++)
+			{
+				uint32_t index1 = m_maxIndex; m_maxIndex++;
+				uint32_t index2 = m_maxIndex;
+				m_buffer.push_back(centerIdx);
+				m_buffer.push_back(index1);
+				m_buffer.push_back(index2);
+			}		
+			m_maxIndex++;			
+		}
+		break;
 	}	
 	size_t size = sizeof(uint32_t) * m_buffer.size();
 	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, size, (const void*)m_buffer.data());

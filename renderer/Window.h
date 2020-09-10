@@ -160,4 +160,19 @@ namespace ap {
 		AP_KEY_MENU				= 348,
 		AP_KEY_LAST				= AP_KEY_MENU
 	};
+	enum mouseButton
+	{
+		AP_MOUSE_BUTTON_1         = 0,
+		AP_MOUSE_BUTTON_2         = 1,
+		AP_MOUSE_BUTTON_3         = 2,
+		AP_MOUSE_BUTTON_4         = 3,
+		AP_MOUSE_BUTTON_5         = 4,
+		AP_MOUSE_BUTTON_6         = 5,
+		AP_MOUSE_BUTTON_7         = 6,
+		AP_MOUSE_BUTTON_8         = 7,
+		AP_MOUSE_BUTTON_LAST      = AP_MOUSE_BUTTON_8,
+		AP_MOUSE_BUTTON_LEFT      = AP_MOUSE_BUTTON_1,
+		AP_MOUSE_BUTTON_RIGHT     = AP_MOUSE_BUTTON_2,
+		AP_MOUSE_BUTTON_MIDDLE    = AP_MOUSE_BUTTON_3
+	};
 }

@@ -6,8 +6,7 @@ namespace ap {
 	void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 	{
 		Window* win = (Window*)glfwGetWindowUserPointer(window);
-		win->s_keys[key] = action != GLFW_RELEASE;
-		
+		win->s_keys[key] = action != GLFW_RELEASE;		
 	}
 	void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 	{
@@ -30,6 +29,7 @@ namespace ap {
 		/* Initialize the library */
 		if (!glfwInit())
 			return;
+		
 		else std::cout << "GLFW Init" << std::endl;
 		m_window = glfwCreateWindow(m_width, m_height, m_title.c_str(), NULL, NULL);
 		if (!m_window)
@@ -47,11 +47,11 @@ namespace ap {
 		glfwSetWindowUserPointer(m_window, this);
 		glfwSetKeyCallback(m_window, key_callback);
 		glfwSetMouseButtonCallback(m_window, mouse_button_callback);
-		glfwSetCursorPosCallback(m_window, cursor_position_callback);
+		glfwSetCursorPosCallback(m_window, cursor_position_callback);		
 		if (glewInit() == GLEW_OK)
 			std::cout << "Glew OK!" << std::endl;
 		else
-			std::cout << "Glew Not OK!" << std::endl;
+			std::cout << "Glew Not OK!" << std::endl;		
 		for (int i = 0; i < MAX_KEYS; i++)
 			s_keys[i] = false;
 		for (int i = 0; i < MAX_MOUSE_BUTTONS; i++)

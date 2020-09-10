@@ -13,60 +13,11 @@ namespace ap {
 		m_texture = nullptr;
 		m_textureIndex = NULL;
 	}
+	EntityID Entity::Type() const { return m_type; }
 	
-	const size_t Quad::s_numIndicies = (const size_t)Entity::IndexCount::IndiciesQuad;
-	const size_t Quad::s_numVerticies = (const size_t)Entity::VertexCount::VerticiesQuad;
 	float Entity::s_nextTextureIndex = 0.0f;
 	std::unordered_map<Texture*, float> Entity::s_texturesCache;
-	Quad::Quad()
-	{
-		m_verticies.reserve(s_numVerticies);
-		for (int i = 0; i < s_numVerticies; i++)
-		{
-			Vertex temp;
-			m_verticies.emplace_back(temp);
-		}
-		m_size = { 0.0f, 0.0f };
-		m_position = { 0.0f, 0.0f };
-		m_color = { 1.0f, 1.0f, 1.0f, 1.0f };  // white by default		
-	}
-	
-	void Quad::setData()
-	{
-		for (auto& v : m_verticies)
-		{
-			v.color = m_color;
-			v.textureSlot = m_textureIndex;		
-			v.hasTexture = m_hasTexture ? 1.0f : 0.0f;
-			//std::cout << "Texture slot: " << v.textureSlot << std::endl;
-		}
-		m_verticies[0].position.x = m_position.x;
-		m_verticies[0].position.y = m_position.y;
-		m_verticies[1].position.x = m_position.x + m_size.x;
-		m_verticies[1].position.y = m_position.y;
-		m_verticies[2].position.x = m_position.x + m_size.x;
-		m_verticies[2].position.y = m_position.y + m_size.y;
-		m_verticies[3].position.x = m_position.x;
-		m_verticies[3].position.y = m_position.y + m_size.y;
 
-		m_verticies[0].texCoords.x = 0.0f;
-		m_verticies[0].texCoords.y = 1.0f;
-		m_verticies[1].texCoords.x = 1.0f;
-		m_verticies[1].texCoords.y = 1.0f;
-		m_verticies[2].texCoords.x = 1.0f;
-		m_verticies[2].texCoords.y = 0.0f;
-		m_verticies[3].texCoords.x = 0.0f;
-		m_verticies[3].texCoords.y = 0.0f;		
-	}
-
-	const size_t Quad::getNumIndicies()
-	{
-		return s_numIndicies;
-	}
-	const size_t Quad::getNumVerticies()
-	{
-		return s_numVerticies;
-	}
 	const Vec4f& Entity::getColor() const
 	{
 		return m_color;
@@ -82,8 +33,7 @@ namespace ap {
 	const Vertex* Entity::getData() const
 	{
 		return m_verticies.data();
-	}
-	
+	}	
 	const float Entity::getTextureIndex() const
 	{
 		return m_textureIndex;
@@ -119,28 +69,107 @@ namespace ap {
 	{
 		m_position.x += offset.x;
 		m_position.y += offset.y;
-		setData();
 	}
 	void Entity::setColor(const Vec3f& c)
 	{
 		m_color = Vec4f(c.r, c.g, c.b, 1.0f);
-		setData();
 	}
 	void Entity::setColor(const Vec4f& c)
 	{
 		m_color = c;
-		setData();
 	}
 	void Entity::setSize(const Vec2f& s)
 	{
 		m_size = s;
-		setData();
 	}
 	void Entity::setPosition(const Vec2f& pos)
 	{
-		m_position = pos;
-		setData();
+		m_position = pos;		
 	}
+
+	/******QUAD IMPLEMENTAIONS*******/
+	const size_t Quad::s_numIndicies = (const size_t)Entity::IndexCount::IndiciesQuad;
+	const size_t Quad::s_numVerticies = (const size_t)Entity::VertexCount::VerticiesQuad;
+	
+	Quad::Quad()
+	{
+		m_verticies.reserve(s_numVerticies);
+		for (int i = 0; i < s_numVerticies; i++)
+		{
+			Vertex temp;
+			m_verticies.emplace_back(temp);
+		}
+		m_size = { 0.0f, 0.0f };
+		m_position = { 0.0f, 0.0f };
+		m_color = { 1.0f, 1.0f, 1.0f, 1.0f };  // white by default		
+		m_type = EntityID::QUAD;
+		m_texPos  = { 0.0f, 0.0f };
+		m_texSize = { 1.0f, 1.0f };
+	}
+	void Quad::setData()
+	{
+		for (auto& v : m_verticies)
+		{
+			v.color = m_color;
+			v.textureSlot = m_textureIndex;
+			v.hasTexture = m_hasTexture ? 1.0f : 0.0f;			
+		}
+		
+		glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(m_position.x, m_position.y, 1.0f))
+			* glm::scale(glm::mat4(1.0f), glm::vec3(m_size.x, m_size.y, 1.0f))
+			* glm::rotate(glm::mat4(1.0f), glm::radians(m_rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+
+		glm::vec4 positions[4];		
+		positions[0] = { -0.5f,  0.5f, 0.0f, 1.0f };
+		positions[1] = {  0.5f,  0.5f, 0.0f, 1.0f };
+		positions[2] = {  0.5f, -0.5f, 0.0f, 1.0f };
+		positions[3] = { -0.5f, -0.5f, 0.0f, 1.0f };
+
+		for (int i = 0; i < s_numVerticies; i++)
+			m_verticies[i].position = transform * positions[i];
+		applyTexCoords();
+
+		/*
+		m_verticies[0].texCoords.x = 0.0f;  m_verticies[1].texCoords.x = 1.0f;
+		m_verticies[0].texCoords.y = 0.0f; 	m_verticies[1].texCoords.y = 0.0f;
+
+		m_verticies[3].texCoords.x = 0.0f;  m_verticies[2].texCoords.x = 1.0f;
+		m_verticies[3].texCoords.y = 1.0f;  m_verticies[2].texCoords.y = 1.0f;
+		*/
+	}
+	void Quad::setTextureCoords(uint32_t x, uint32_t y, uint32_t w, uint32_t h)
+	{
+		if (m_texture != nullptr)
+		{
+			m_texPos.x = x / m_texture->Width();
+			m_texPos.y = y / m_texture->Height();
+
+			m_texSize.x = w / m_texture->Width();
+			m_texSize.y = h / m_texture->Height();
+		}
+	}
+	void Quad::applyTexCoords()
+	{
+		m_verticies[0].texCoords.x = m_texPos.x;				m_verticies[1].texCoords.x = m_texPos.x + m_texSize.x;
+		m_verticies[0].texCoords.y = m_texPos.y;				m_verticies[1].texCoords.y = m_texPos.y;
+
+		m_verticies[3].texCoords.x = m_texPos.x;				m_verticies[2].texCoords.x = m_texPos.x + m_texSize.x;
+		m_verticies[3].texCoords.y = m_texPos.y + m_texSize.y;  m_verticies[2].texCoords.y = m_texPos.y + m_texSize.y;
+	}
+	const size_t Quad::getNumIndicies()
+	{
+		return s_numIndicies;
+	}
+	const size_t Quad::getNumVerticies()
+	{
+		return s_numVerticies;
+	}
+	void Quad::rotate(float degrees)
+	{
+		m_rotation = degrees;
+ 	}
+	
+	/***********TRIANGLE IMPLEMENTATIONS***********/
 	const size_t Triangle::s_numIndicies = (const size_t)Entity::IndexCount::IndiciesTriangle;
 	const size_t Triangle::s_numVerticies = (const size_t)Entity::VertexCount::VerticiesTriangle;
 	Triangle::Triangle()
@@ -153,8 +182,8 @@ namespace ap {
 		}
 		m_size     = { 0.0f, 0.0f };
 		m_position = { 0.0f, 0.0f };
-		m_color    = { 1.0f, 1.0f, 1.0f, 1.0f };  // white by default
-		//m_model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+		m_color    = { 1.0f, 1.0f, 1.0f, 1.0f };  // white by default		
+		m_type = EntityID::TRIANGLE;
 	}
 	
 	void Triangle::setData()
@@ -164,7 +193,8 @@ namespace ap {
 			v.color = m_color;
 			v.textureSlot = m_textureIndex;
 			v.hasTexture  = m_hasTexture ? 1.0f : 0.0f;
-		}
+		}		
+	
 		m_verticies[0].position.x = m_position.x;
 		m_verticies[0].position.y = m_position.y;
 		m_verticies[1].position.x = m_position.x + (m_size.x / 2.0f);
@@ -179,30 +209,10 @@ namespace ap {
 		m_verticies[2].texCoords.x = 0.0f;
 		m_verticies[2].texCoords.y = 0.0f;
 	}
-	Vertex& Triangle::at(uint32_t index)
-	{
-		// assert
-		return m_verticies[index];
-	}
+	
 	void Triangle::rotate(float degrees)
 	{
-		float radius = 0.0f;
-		float angleVertex1 = 0.0f;
-		float angleVertex2 = 0.0f;
-		{
-			float b = (m_verticies[0].position.x - m_verticies[1].position.x);
-			float a = (m_verticies[0].position.y - m_verticies[1].position.y);
-			radius = (sqrt(powf(a, 2) + powf(b, 2)));
-			std::cout << "radius: " << radius << std::endl;
-			angleVertex1 = asin(a / radius) * (180.0f / 3.14159f);
-			std::cout << "Angle vertex 1: " << angleVertex1 << std::endl;
-		}
-		{
-			float b = (m_verticies[0].position.x - m_verticies[2].position.x);
-			float a = (m_verticies[0].position.y - m_verticies[2].position.y);			
-			angleVertex2 = asin(a / radius) * (180.0f / 3.14159f);
-			std::cout << "Angle vertex 2: " << angleVertex2 << std::endl;
-		}
+		m_rotation = degrees;
 	}
 	const size_t Triangle::getNumIndicies()  
 	{
@@ -212,4 +222,165 @@ namespace ap {
 	{
 		return s_numVerticies;
 	}	
+
+	/********RENDER TRIANGLE IMPLEMENTATIONS**********/
+
+	const size_t RenderTriangle::s_numIndicies  = (const size_t)Entity::IndexCount::IndiciesTriangle;
+	const size_t RenderTriangle::s_numVerticies = (const size_t)Entity::VertexCount::VerticiesTriangle;
+
+	RenderTriangle::RenderTriangle()
+		: m_v1Degrees(5.0f), m_v2Degrees(0.0f), m_radius(50.0f)   // defaults
+	{
+		m_position = { 0.0f, 0.0f };
+		m_color = { 1.0f, 1.0f, 1.0f, 1.0f };  // white by default
+		m_verticies.reserve(3);
+		for (int i = 0; i < s_numVerticies; i++)
+			m_verticies.push_back(Vertex());
+		m_type = EntityID::TRIANGLE;
+	}
+	void RenderTriangle::setData()
+	{
+		for (auto& v : m_verticies)
+		{
+			v.color = m_color;
+			v.textureSlot = m_textureIndex;
+			v.hasTexture = m_hasTexture ? 1.0f : 0.0f;
+		}
+		m_verticies[0].position.x = m_position.x;
+		m_verticies[0].position.y = m_position.y;
+		m_verticies[1].position.x = m_position.x + (m_radius * cos(glm::radians(m_v1Degrees)));
+		m_verticies[1].position.y = m_position.y + (m_radius * sin(glm::radians(m_v1Degrees)));
+		m_verticies[2].position.x = m_position.x + (m_radius * cos(glm::radians(m_v2Degrees)));
+		m_verticies[2].position.y = m_position.y + (m_radius * sin(glm::radians(m_v2Degrees)));
+	}
+	const size_t RenderTriangle::getNumIndicies()
+	{
+		return s_numIndicies;
+	}
+	const size_t RenderTriangle::getNumVerticies()
+	{
+		return s_numVerticies;
+	}
+	void RenderTriangle::setRadius(float r)
+	{
+		m_radius = r;
+	}
+	void RenderTriangle::setVertex1Degrees(float v1d)
+	{
+		m_v1Degrees = v1d;
+	}
+	void RenderTriangle::setVertex2Degrees(float v2d)
+	{
+		m_v1Degrees = v2d;		
+	}
+	void RenderTriangle::setVertexDegrees(float v1, float v2)
+	{		
+		m_v1Degrees = v1;
+		m_v2Degrees = v2;
+		if (m_v1Degrees >= 360.0f)
+			m_v1Degrees -= 360.0f;
+		if (m_v2Degrees >= 360.0f)
+			m_v2Degrees -= 360.0f;		
+	}
+	void RenderTriangle::rotate(float d)
+	{
+		m_v1Degrees += d;
+		m_v2Degrees += d;		
+	}
+
+	/*******Sprite Implementations********/
+	Sprite::Sprite(Texture* t)
+	{
+		update(t);
+
+		m_type = EntityID::SPRITE;
+	}
+	void Sprite::setSpriteTexture(Texture* t)
+	{
+		update(t);
+	}
+	void Sprite::update(Texture* t)
+	{
+		setTexture(t);
+		setSize({ m_texture->Width(), m_texture->Height() });
+	}
+	/*******RenderEntity Implementations********/
+	RenderEntity::RenderEntity(size_t verticies)
+		: m_vertexCount(verticies), m_radius(0)
+	{
+		m_position = { 0.0f, 0.0f };
+		m_color = { 1.0f, 1.0f, 1.0f, 1.0f };
+		m_type = EntityID::RENDER_ENTITY;
+		m_verticies.reserve(m_vertexCount);
+	}
+	RenderEntity::RenderEntity(size_t verticies, float size)
+		: m_vertexCount(verticies), m_radius(size)
+	{
+		m_position = { 0.0f, 0.0f };
+		m_color = { 1.0f, 1.0f, 1.0f, 1.0f };
+		m_type = EntityID::RENDER_ENTITY;
+		m_verticies.reserve(m_vertexCount);
+	}
+	void RenderEntity::setVertexCount(size_t verticies)
+	{
+		m_vertexCount = verticies;
+		m_verticies.clear();
+		m_verticies.reserve(m_vertexCount);
+	}
+	void RenderEntity::setRadius(float r)
+	{
+		m_radius = r;
+	}
+	void RenderEntity::rotate(float degrees)
+	{
+		m_rotation = degrees;
+	}
+	const size_t RenderEntity::getNumVerticies()
+	{
+		return m_vertexCount;
+	}
+	const size_t RenderEntity::getNumIndicies()
+	{
+		return m_vertexCount;   // its not the number of indicies it's the number of triangles, which is always the number of verticies-2    
+	}
+	void RenderEntity::setVertexColor(uint32_t index, const Vec4f& c)
+	{
+		m_colorCache[index] = c;
+	}
+	void RenderEntity::setData()
+	{
+		// the verticies are created by using a center position, m_position, and like a circle, the position of the verticies are calculated with sin and cos
+		// an indexing algorithm later determines which verticies should be rendered and when. 
+		if (m_type == EntityID::CIRCLE)
+			m_vertexCount = Circle::MaxVerticies();
+		m_verticies.clear();
+		m_verticies.reserve(m_vertexCount);
+		float degrees = 0.0f;
+		float next = 360.0f / (float)m_vertexCount;
+		for (int i = 0; i < m_vertexCount; i++)
+		{
+			Vertex v;
+			v.position.x = (m_radius * cos(glm::radians(degrees+m_rotation))) + m_position.x;
+			v.position.y = (m_radius * sin(glm::radians(degrees+m_rotation))) + m_position.y;
+			m_verticies.push_back(v);
+			degrees += next;
+		}
+		for (Vertex& v : m_verticies)
+		{			
+			v.color = m_color;
+			v.hasTexture = m_hasTexture;
+			v.textureSlot = m_textureIndex;
+		}
+		for (auto& c : m_colorCache)
+			m_verticies[c.first].color = c.second;		
+	}
+	/******Circle Implementations******/
+
+	const size_t Circle::s_maxVertexCount = 32;
+	Circle::Circle(float radius)
+	{
+		this->m_radius = radius;
+		m_type = EntityID::CIRCLE;
+	}
+	const size_t Circle::MaxVerticies() { return s_maxVertexCount; }
 }

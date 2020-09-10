@@ -9,6 +9,7 @@ ShaderProgram::ShaderProgram(const char* vs_path, const char* fs_path)
 	vs = glCreateShader(GL_VERTEX_SHADER);
 	fs = glCreateShader(GL_FRAGMENT_SHADER);
 	std::cout << "GL Error: " << glGetError() << " " << __FILE__ << " " << __LINE__ << std::endl;
+	
 	LoadShader(vs_path, vs_src);
 	LoadShader(fs_path, fs_src);
 	
@@ -35,7 +36,7 @@ ShaderProgram::ShaderProgram(const char* vs_path, const char* fs_path)
 void ShaderProgram::LoadShader(const char* path, std::string& src)
 {
 	std::string line;
-	std::ifstream stream(path);
+	std::ifstream stream(path);	
 	std::stringstream ss;
 	if (stream.is_open())
 	{
@@ -45,7 +46,7 @@ void ShaderProgram::LoadShader(const char* path, std::string& src)
 		}
 		src = ss.str();
 	}
-	else
+	else if(stream.fail())
 		std::cout << "Shader File Failed To Open" << std::endl;
 }
 void ShaderProgram::CompileShader(std::string& src, uint32_t shader)

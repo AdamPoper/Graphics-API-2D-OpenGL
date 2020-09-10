@@ -14,12 +14,13 @@ VertexBuffer::VertexBuffer()
 VertexBuffer::VertexBuffer(float* data, size_t size)
 	: m_renderID(0)
 {
+#if 0
 	size_t count = size / 4;
 	std::cout << "count: " << count << std::endl;
 	//m_buffer.reserve(count / 2);
 	for (int i = 0; i < count; i += ap::Vertex::CountFloats())
 	{
-		ap::Vec2f pos   = { data[i], data[i + 1] };
+		ap::Vec3f pos   = { data[i], data[i + 1], 0.0f };
 		ap::Vec4f color = { data[i + 2], data[i + 3], data[i + 4], data[i + 5] };
 		ap::Vertex temp = { pos, color };
 		m_buffer.push_back(temp);
@@ -27,6 +28,7 @@ VertexBuffer::VertexBuffer(float* data, size_t size)
 	glGenBuffers(1, &m_renderID);
 	glBindBuffer(GL_ARRAY_BUFFER, m_renderID);
 	glBufferData(GL_ARRAY_BUFFER, size, (const void*)m_buffer.data(), GL_DYNAMIC_DRAW);
+#endif
 }
 void VertexBuffer::Bind() const
 {
@@ -48,7 +50,7 @@ void VertexBuffer::addVertexData(const ap::Vertex* data, size_t num)
 {
 	m_buffer.reserve(num);
 	for (int i = 0; i < num; i++)
-		m_buffer.emplace_back(data[i]);
+		m_buffer.emplace_back(data[i]);	
 }
 void VertexBuffer::setDynamicGeometry()
 {
