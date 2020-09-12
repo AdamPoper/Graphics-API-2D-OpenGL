@@ -63,7 +63,8 @@ int main()
 	wasd[Directions::RIGHT] = false;
 	ap::Quad chaseQuad;	
 	std::vector<ap::Quad> snakeQuads;
-	snakeQuads.reserve(400); // 800 / 40 = 20 and 20 x 20 = 400
+	snakeQuads.reserve(10); // 800 / 40 = 20 and 20 x 20 = 400  
+	// there should be no need for a reallocation because 400 quads is the maximum that can occupy the screen anyway
 	snakeQuads.push_back(head);
 	ap::Quad* snakeHead = &snakeQuads[0];
 	std::vector<ap::Vec2f> positionHistory;   // for accessing the position history of the quads for moving them
@@ -139,6 +140,7 @@ int main()
 			if (toIncrement)
 			{
 				snakeQuads.push_back(next);
+				snakeHead = &snakeQuads[0];    // always make sure the pointer is to the head just in case a reallocation happens
 				toIncrement = false;
 			}
 			moveClock.Restart();
