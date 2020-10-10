@@ -14,6 +14,8 @@ public:
 	void addVertexData(const ap::Vertex* data, size_t num);
 	void setDynamicGeometry();
 	void clearVertexBuffer();
+	const ap::Vertex& operator[](uint32_t index) const;
+	ap::Vertex& operator[](uint32_t index);
 private:
 	std::vector<ap::Vertex> m_buffer;
 	uint32_t m_renderID;

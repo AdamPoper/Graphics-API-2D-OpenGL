@@ -4,8 +4,8 @@
 #include <vector>
 #include <array>
 #include <unordered_map>
-#include "../glm/glm.hpp"
-#include "../glm/gtc/matrix_transform.hpp"
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 #include <cmath>
 
 class IndexBuffer;
@@ -68,11 +68,14 @@ namespace ap {
 	class Quad : public Entity
 	{
 	public:
-		Quad();			
+		Quad();		
+		Quad(const Vec2f& pos, const Vec2f& size, const Vec4f& color);
+		Quad(const Vec2f& pos, const Vec2f& size, Texture* tex);
 		const size_t getNumIndicies()  override;
 		const size_t getNumVerticies() override;
 		void rotate(float degrees)     override;
-		void setTextureCoords(uint32_t x, uint32_t y, uint32_t w, uint32_t h);
+		bool setSubTexPoint(ap::Vec2f pos);
+		bool setSubTexSize(ap::Vec2f size);
 		static const size_t s_numIndicies;
 		static const size_t s_numVerticies;		
 	private:
@@ -152,10 +155,21 @@ namespace ap {
 	{
 	public:
 		friend class Renderer;
-		Circle() = default;
+		Circle();
 		Circle(float radius);
 		static const size_t MaxVerticies();
 	private:
 		static const size_t s_maxVertexCount;
+	};
+	class Point // basically just a Vertex
+	{
+	public: 
+		Point();
+		Point(const Vec2f& pos, const Vec4f& color);
+		const Vec2f& GetPosition() const { return m_vertex.position; }
+		const Vec4f& GetColor()    const { return m_vertex.color;    }
+		const Vertex* Verticies()  const { return &m_vertex;         } 
+	private:
+		Vertex m_vertex;
 	};
 }

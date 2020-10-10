@@ -26,6 +26,7 @@ namespace ap {
 		static bool isMouseButtonPressed(uint32_t buttCode);
 		float Width() const { return m_width; }
 		float Height() const { return m_height; }
+		GLFWwindow* glfw_ptr() const { return m_window; }
 	private:
 		float m_width, m_height;
 		bool m_isOpen = false;

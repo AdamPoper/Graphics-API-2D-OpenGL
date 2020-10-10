@@ -1,7 +1,7 @@
 #pragma once
 #include <iostream>
 #include <GL/glew.h>
-#include "../glm/glm.hpp"
+#include "glm/glm.hpp"
 
 typedef unsigned int uint32_t;
 namespace ap {
@@ -12,6 +12,9 @@ namespace ap {
 	
 	struct Vertex
 	{
+		Vertex() = default;
+		Vertex(const Vec2f& pos, const Vec4f& color)
+			: position(pos), color(color) {}
 		glm::vec2 position;
 		glm::vec4 color;
 		glm::vec2 texCoords;
