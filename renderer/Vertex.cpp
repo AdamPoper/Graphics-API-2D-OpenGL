@@ -1,4 +1,4 @@
-#include "Vertex.h"
+#include "AP2DGL/Vertex.h"
 
 namespace ap {
     Vec4f Color::Blue = { 0.0f, 0.0f, 1.0f, 1.0f };

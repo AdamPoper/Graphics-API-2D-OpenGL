@@ -1,4 +1,4 @@
-#include "IndexBuffer.h"
+#include "AP2DGL/IndexBuffer.h"
 #include <iostream>
 
 IndexBuffer::IndexBuffer()
@@ -6,7 +6,7 @@ IndexBuffer::IndexBuffer()
 {
 	glGenBuffers(1, &m_renderID);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_renderID);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(float) * 10000, nullptr, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(float) * 1000000, nullptr, GL_STATIC_DRAW);
 }
 IndexBuffer::IndexBuffer(uint32_t* data, size_t size)
 	: m_renderID(0)

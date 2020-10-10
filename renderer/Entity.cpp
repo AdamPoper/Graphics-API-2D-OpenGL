@@ -1,4 +1,4 @@
-#include "Entity.h"
+#include "AP2DGL/Entity.h"
 
 namespace ap {
 
@@ -95,16 +95,41 @@ namespace ap {
 	{
 		m_verticies.reserve(s_numVerticies);
 		for (int i = 0; i < s_numVerticies; i++)
-		{
-			Vertex temp;
-			m_verticies.emplace_back(temp);
-		}
+			m_verticies.emplace_back(Vertex());
 		m_size = { 0.0f, 0.0f };
 		m_position = { 0.0f, 0.0f };
 		m_color = { 1.0f, 1.0f, 1.0f, 1.0f };  // white by default		
 		m_type = EntityID::QUAD;
 		m_texPos  = { 0.0f, 0.0f };
 		m_texSize = { 1.0f, 1.0f };
+		m_texture = nullptr;
+	}
+	Quad::Quad(const Vec2f& pos, const Vec2f& size, const Vec4f& color)
+	{
+		this->m_position = pos;
+		this->m_size = size;
+		this->m_color = color;		
+		m_verticies.reserve(s_numVerticies);
+		for (int i = 0; i < s_numVerticies; i++)
+			m_verticies.emplace_back(Vertex());
+		m_type    = EntityID::QUAD;
+		m_texPos  = { 0.0f, 0.0f };
+		m_texSize = { 1.0f, 1.0f };
+		m_texture = nullptr;
+	}
+	Quad::Quad(const Vec2f& pos, const Vec2f& size, Texture* tex)
+	{
+		this->m_position = pos;
+		this->m_size = size;
+		this->m_texture = tex;
+		this->m_hasTexture = true;
+		m_verticies.reserve(s_numVerticies);
+		for (int i = 0; i < s_numVerticies; i++)
+			m_verticies.emplace_back(Vertex());		
+		m_type    = EntityID::QUAD;
+		m_texPos  = { 0.0f, 0.0f };
+		m_texSize = { 1.0f, 1.0f };
+		m_color   = ap::Color::White;
 	}
 	void Quad::setData()
 	{
@@ -127,34 +152,52 @@ namespace ap {
 
 		for (int i = 0; i < s_numVerticies; i++)
 			m_verticies[i].position = transform * positions[i];
-		applyTexCoords();
-
-		/*
-		m_verticies[0].texCoords.x = 0.0f;  m_verticies[1].texCoords.x = 1.0f;
-		m_verticies[0].texCoords.y = 0.0f; 	m_verticies[1].texCoords.y = 0.0f;
-
-		m_verticies[3].texCoords.x = 0.0f;  m_verticies[2].texCoords.x = 1.0f;
-		m_verticies[3].texCoords.y = 1.0f;  m_verticies[2].texCoords.y = 1.0f;
-		*/
+		applyTexCoords();		
 	}
-	void Quad::setTextureCoords(uint32_t x, uint32_t y, uint32_t w, uint32_t h)
+	bool Quad::setSubTexPoint(ap::Vec2f pos)
 	{
-		if (m_texture != nullptr)
+		// returns true if conditions are met and the sample point gets updated
+		// doing this prevents it from sampling from a point that's not in the texture
+		glm::vec2 texSize;
+		texSize.x = m_texSize.x * m_texture->Width();
+		texSize.y = m_texSize.y * m_texture->Height();
+		if ((pos.x + texSize.x <= m_texture->Width() && pos.y + texSize.y <= m_texture->Height())
+			&& (pos.x >= 0.0f && pos.y >= 0.0f))
 		{
-			m_texPos.x = x / m_texture->Width();
-			m_texPos.y = y / m_texture->Height();
-
-			m_texSize.x = w / m_texture->Width();
-			m_texSize.y = h / m_texture->Height();
+			m_texPos.x = (pos.x / (float)m_texture->Width());
+			m_texPos.y = (pos.y / (float)m_texture->Height());
+			return true;
 		}
+		return false;
+	}
+	bool Quad::setSubTexSize(ap::Vec2f size)
+	{
+		// returns true if conditions are met and the sample point gets updated
+		// doing this prevents it from showing anything that's not in the texture
+		glm::vec2 texPos;
+		texPos.x = m_texPos.x * m_texture->Width();
+		texPos.y = m_texPos.y * m_texture->Height();
+		if (size.x + texPos.x <= m_texture->Width() && size.y + texPos.y <= m_texture->Height())
+		{
+			m_texSize.x = (size.x / (float)m_texture->Width());
+			m_texSize.y = (size.y / (float)m_texture->Height());
+			return true;
+		}
+		return false;  
 	}
 	void Quad::applyTexCoords()
-	{
-		m_verticies[0].texCoords.x = m_texPos.x;				m_verticies[1].texCoords.x = m_texPos.x + m_texSize.x;
-		m_verticies[0].texCoords.y = m_texPos.y;				m_verticies[1].texCoords.y = m_texPos.y;
+	{		
+		m_verticies[0].texCoords.x = m_texPos.x;				
+		m_verticies[0].texCoords.y = m_texPos.y;
 
-		m_verticies[3].texCoords.x = m_texPos.x;				m_verticies[2].texCoords.x = m_texPos.x + m_texSize.x;
-		m_verticies[3].texCoords.y = m_texPos.y + m_texSize.y;  m_verticies[2].texCoords.y = m_texPos.y + m_texSize.y;
+		m_verticies[1].texCoords.x = m_texPos.x + m_texSize.x;
+		m_verticies[1].texCoords.y = m_texPos.y;
+
+		m_verticies[2].texCoords.x = m_texPos.x + m_texSize.x;
+		m_verticies[2].texCoords.y = m_texPos.y + m_texSize.y;
+
+		m_verticies[3].texCoords.x = m_texPos.x;
+		m_verticies[3].texCoords.y = m_texPos.y + m_texSize.y;	
 	}
 	const size_t Quad::getNumIndicies()
 	{
@@ -170,16 +213,13 @@ namespace ap {
  	}
 	
 	/***********TRIANGLE IMPLEMENTATIONS***********/
-	const size_t Triangle::s_numIndicies = (const size_t)Entity::IndexCount::IndiciesTriangle;
+	const size_t Triangle::s_numIndicies  = (const size_t)Entity::IndexCount::IndiciesTriangle;
 	const size_t Triangle::s_numVerticies = (const size_t)Entity::VertexCount::VerticiesTriangle;
 	Triangle::Triangle()
 	{
 		m_verticies.reserve(s_numVerticies);
 		for (int i = 0; i < s_numVerticies; i++)
-		{
-			Vertex temp;
-			m_verticies.emplace_back(temp);
-		}
+			m_verticies.emplace_back(Vertex());
 		m_size     = { 0.0f, 0.0f };
 		m_position = { 0.0f, 0.0f };
 		m_color    = { 1.0f, 1.0f, 1.0f, 1.0f };  // white by default		
@@ -382,5 +422,17 @@ namespace ap {
 		this->m_radius = radius;
 		m_type = EntityID::CIRCLE;
 	}
+	Circle::Circle()
+	{
+		this->m_radius = 0.0f;
+		m_type = EntityID::CIRCLE;
+	}
 	const size_t Circle::MaxVerticies() { return s_maxVertexCount; }
+	/******Point Implementations******/
+	Point::Point() {}
+	Point::Point(const Vec2f& pos, const Vec4f& color)
+	{
+		m_vertex.position = pos;
+		m_vertex.color = color;
+	}	
 }

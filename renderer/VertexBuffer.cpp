@@ -1,4 +1,4 @@
-#include "VertexBuffer.h"
+#include "AP2DGL/VertexBuffer.h"
 
 #include <iostream>
 VertexBuffer::VertexBuffer()
@@ -6,7 +6,7 @@ VertexBuffer::VertexBuffer()
 {
 	glGenBuffers(1, &m_renderID);
 	glBindBuffer(GL_ARRAY_BUFFER, m_renderID);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(ap::Vertex) * 10000, nullptr, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(ap::Vertex) * 1000000, nullptr, GL_DYNAMIC_DRAW);
 	// make the gpu buffer fuck all huge to start
 	std::cout << sizeof(ap::Vertex) << std::endl;
 	std::cout << __FILE__ << " " << glGetError() << " " << __LINE__ << std::endl;
@@ -61,4 +61,12 @@ void VertexBuffer::setDynamicGeometry()
 void VertexBuffer::clearVertexBuffer()
 {
 	m_buffer.clear();
+}
+const ap::Vertex& VertexBuffer::operator[](uint32_t index) const
+{
+	return m_buffer[index];
+}
+ap::Vertex& VertexBuffer::operator[](uint32_t index)
+{
+	return m_buffer[index];
 }

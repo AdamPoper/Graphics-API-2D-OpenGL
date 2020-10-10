@@ -1,4 +1,4 @@
-#include "VertexArray.h"
+#include "AP2DGL/VertexArray.h"
 #include <iostream>
 VertexArray::VertexArray()
 	: m_renderID(0)

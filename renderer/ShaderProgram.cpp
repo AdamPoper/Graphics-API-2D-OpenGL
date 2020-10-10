@@ -1,4 +1,4 @@
-#include "ShaderProgram.h"
+#include "AP2DGL/ShaderProgram.h"
 
 ShaderProgram::ShaderProgram()
 	: m_renderID(0) {}

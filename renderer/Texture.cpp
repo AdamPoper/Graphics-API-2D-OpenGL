@@ -1,4 +1,4 @@
-#include "Texture.h"
+#include "AP2DGL/Texture.h"
 
 namespace ap {
 
@@ -18,26 +18,43 @@ namespace ap {
 		std::cout << "GL Error: " << glGetError() << " " << __FILE__ << " " << __LINE__ << std::endl;
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (const void*)m_buffer);
 		std::cout << "GL Error: " << glGetError() << " " << __FILE__ << " " << __LINE__ << std::endl;
-		//glBindTexture(GL_TEXTURE_2D, 0);
+		glBindTexture(GL_TEXTURE_2D, 0);
 		std::cout << "GL Error: " << glGetError() << " " << __FILE__ << " " << __LINE__ << std::endl;
-		/*
-		if (m_buffer != nullptr)
-		{
-			//std::cout << "Freeing Texture Buffer" << std::endl;
-			stbi_image_free(m_buffer);
-		}
-		*/
+		
+	}
+	Texture::Texture()
+		: m_filePath(""), m_width(0), m_height(0), m_bpp(0), m_buffer(nullptr)
+	{
+
+	}
+	void Texture::LoadFromFile(const char* file)
+	{
+		m_filePath = file;
+		stbi_set_flip_vertically_on_load(1);
+		m_buffer = stbi_load(m_filePath.c_str(), &m_width, &m_height, &m_bpp, 4);  // 4 means RGBA		
+		glGenTextures(1, &m_renderID);
+		std::cout << "GL Error: " << glGetError() << " " << __FILE__ << " " << __LINE__ << std::endl;
+		glBindTexture(GL_TEXTURE_2D, m_renderID);
+		std::cout << "GL Error: " << glGetError() << " " << __FILE__ << " " << __LINE__ << std::endl;
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		std::cout << "GL Error: " << glGetError() << " " << __FILE__ << " " << __LINE__ << std::endl;
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (const void*)m_buffer);
+		std::cout << "GL Error: " << glGetError() << " " << __FILE__ << " " << __LINE__ << std::endl;
+		glBindTexture(GL_TEXTURE_2D, 0);
+		std::cout << "GL Error: " << glGetError() << " " << __FILE__ << " " << __LINE__ << std::endl;
 	}
 	Texture::~Texture()
 	{
 		glDeleteTextures(1, &m_renderID);
 		std::cout << "GL Error: " << glGetError() << " " << __FILE__ << " " << __LINE__ << std::endl;
+		if (m_buffer != nullptr)
+			stbi_image_free(m_buffer);
 	}
 	void Texture::Bind(uint32_t slot) const  // slot is optional
-	{
-		//glActiveTexture(GL_TEXTURE0 + slot);
-		//glBindTexture(GL_TEXTURE_2D, m_renderID);
-		//glTexSubImage2D(GL_TEXTURE_2D, 0, 100, 0, m_width-100, m_height-100, GL_RGBA, GL_UNSIGNED_BYTE, m_buffer);
+	{		
 		glBindTextureUnit(slot, m_renderID);		
 	}
 	void Texture::UnBind() const
