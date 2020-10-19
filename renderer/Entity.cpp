@@ -415,11 +415,17 @@ namespace ap {
 			m_verticies[c.first].color = c.second;		
 	}
 	/******Circle Implementations******/
-
 	const size_t Circle::s_maxVertexCount = 32;
 	Circle::Circle(float radius)
 	{
 		this->m_radius = radius;
+		m_type = EntityID::CIRCLE;
+	}
+	Circle::Circle(const Vec2f& pos, float radius, const ap::Vec4f& color)
+	{
+		this->m_radius = radius;
+		this->m_color = color;
+		this->m_position = pos;
 		m_type = EntityID::CIRCLE;
 	}
 	Circle::Circle()
@@ -428,11 +434,4 @@ namespace ap {
 		m_type = EntityID::CIRCLE;
 	}
 	const size_t Circle::MaxVerticies() { return s_maxVertexCount; }
-	/******Point Implementations******/
-	Point::Point() {}
-	Point::Point(const Vec2f& pos, const Vec4f& color)
-	{
-		m_vertex.position = pos;
-		m_vertex.color = color;
-	}	
 }

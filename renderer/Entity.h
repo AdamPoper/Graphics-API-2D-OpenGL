@@ -68,6 +68,7 @@ namespace ap {
 	class Quad : public Entity
 	{
 	public:
+		friend class Renderer;
 		Quad();		
 		Quad(const Vec2f& pos, const Vec2f& size, const Vec4f& color);
 		Quad(const Vec2f& pos, const Vec2f& size, Texture* tex);
@@ -124,7 +125,7 @@ namespace ap {
 	{
 	public:
 		Sprite() = default;
-		Sprite(Texture*);		
+		Sprite(Texture* t);		
 		void setSpriteTexture(Texture* t);
 	private:
 		void update(Texture* t);
@@ -157,19 +158,9 @@ namespace ap {
 		friend class Renderer;
 		Circle();
 		Circle(float radius);
+		Circle(const Vec2f& pos, float radius, const Vec4f& color);
 		static const size_t MaxVerticies();
 	private:
 		static const size_t s_maxVertexCount;
-	};
-	class Point // basically just a Vertex
-	{
-	public: 
-		Point();
-		Point(const Vec2f& pos, const Vec4f& color);
-		const Vec2f& GetPosition() const { return m_vertex.position; }
-		const Vec4f& GetColor()    const { return m_vertex.color;    }
-		const Vertex* Verticies()  const { return &m_vertex;         } 
-	private:
-		Vertex m_vertex;
 	};
 }

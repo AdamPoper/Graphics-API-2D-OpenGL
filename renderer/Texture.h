@@ -18,9 +18,9 @@ namespace ap {
 		inline int Width()  { return m_width; }
 		inline int Height() { return m_height; }
 		void LoadFromFile(const char* file);
-	private:
 		void Bind(uint32_t slot = 0) const;
 		void UnBind() const;
+		uint32_t TextureID() const;
 	private:
 		uint32_t m_renderID;
 		std::string m_filePath;

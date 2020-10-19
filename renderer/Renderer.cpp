@@ -16,12 +16,13 @@ namespace ap {
         m_vertexArray.push<float>(1); // yes or no has texture
         m_vertexBuffer  = new VertexBuffer();
         m_indexBuffer   = new IndexBuffer();   
-        m_shaderProgram = new ShaderProgram("assets/shaders/ShaderVertex.shader", "assets/shaders/ShaderFragment.shader");        
+        m_shaderProgram = new ShaderProgram("AP2DGL/assets/shaders/ShaderVertex.shader", "AP2DGL/assets/shaders/ShaderFragment.shader");        
         m_vertexArray.Enable();        
         Blend();
         int samplers[32] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31 };
         m_shaderProgram->setUniform1iv(samplers, 32, "u_Texture");
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);        
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);      
+        glEnable(GL_MULTISAMPLE);  // make sure MSAA is enbled
     }
     Renderer::~Renderer()
     {
@@ -29,21 +30,13 @@ namespace ap {
         delete m_vertexBuffer;
         delete m_indexBuffer;
         delete m_shaderProgram;   
-        // just in case
-        for (auto& ent : m_memAllocEnts)
-            delete ent;
     }
     void Renderer::Draw(Entity* ent)
     {                         
        m_entities.push_back(ent);       
     }  
-    void Renderer::Draw(Point* line)
+    void Renderer::PrepareForRender()
     {
-        m_points.push_back(line);
-    }
-    void Renderer::onUpdate()
-    {               
-        glClear(GL_COLOR_BUFFER_BIT);
         m_vertexBuffer->clearVertexBuffer();
         m_indexBuffer->clearIndexBuffer();
         if (m_camera != nullptr)
@@ -51,7 +44,16 @@ namespace ap {
             m_camera->OnUpdate();
             m_view = m_camera->GetTransform();
         }
-        m_MVP = m_projection * m_view;    
+        m_MVP = m_projection * m_view;
+        m_shaderProgram->addMatrix4fv(m_MVP, "u_MVP");
+    }
+    void Renderer::ClearRenderBuffer()
+    {
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    }
+    void Renderer::onUpdate()
+    {                    
+        PrepareForRender();
         for (auto& e : m_entities)
         {                 
             e->setData();
@@ -60,16 +62,10 @@ namespace ap {
             if (e->hasTexture())  // only bind texture if the entity has one
                 e->getTexture()->Bind((uint32_t)e->getTextureIndex());                                                      
         }         
-        m_vertexBuffer->setDynamicGeometry();
-        m_shaderProgram->addMatrix4fv(m_MVP, "u_MVP");
-       
+        m_vertexBuffer->setDynamicGeometry();       
         glDrawElements(GL_TRIANGLES, m_indexBuffer->Count(), GL_UNSIGNED_INT, nullptr);
-        m_entities.clear();     
-        for (auto& ent : m_memAllocEnts)
-            delete ent;
-        m_memAllocEnts.clear();
-        m_vertexBuffer->clearVertexBuffer();
-                
+        m_entities.clear();            
+        m_vertexBuffer->clearVertexBuffer();           
     }
     void Renderer::Blend() const
     {
@@ -90,36 +86,47 @@ namespace ap {
     }
     void Renderer::DrawQuad(const Vec2f& pos, const Vec2f& size, const Vec4f& color)
     {
-        Quad* q = new Quad(pos, size, color);
-        m_entities.push_back(q);
-        m_memAllocEnts.push_back(q);
+        Quad quad(pos, size, color);
+        quad.setData();
+        PrepareForRender();
+        m_vertexBuffer->addVertexData(quad.getData(), quad.getNumVerticies());
+        m_indexBuffer->updateIndicies(quad.getNumIndicies());
+        m_vertexBuffer->setDynamicGeometry();
+        m_vertexBuffer->Bind();
+        m_indexBuffer->Bind();
+        glDrawElements(GL_TRIANGLES, m_indexBuffer->Count(), GL_UNSIGNED_INT, nullptr);
     }
     void Renderer::DrawQuad(const Vec2f& pos, const Vec2f& size, Texture* tex)
     {
-        Quad* q = new Quad(pos, size, tex);
-        m_entities.push_back(q);
-        m_memAllocEnts.push_back(q);
+        Quad quad(pos, size, tex);
+        quad.setData();
+        if(quad.hasTexture())
+            quad.getTexture()->Bind((uint32_t)quad.getTextureIndex());
+        PrepareForRender();
+        m_vertexBuffer->addVertexData(quad.getData(), quad.getNumVerticies());
+        m_indexBuffer->updateIndicies(quad.getNumIndicies());
+        m_vertexBuffer->setDynamicGeometry();
+        m_vertexBuffer->Bind();
+        m_indexBuffer->Bind();
+        glDrawElements(GL_TRIANGLES, m_indexBuffer->Count(), GL_UNSIGNED_INT, nullptr);
     }
     void Renderer::DrawCircle(const Vec2f& pos, float radius, const ap::Vec4f& color)
-    {
-        Circle* c = new Circle(radius);
-        c->setPosition(pos);
-        c->setColor(color);
-        m_entities.push_back(c);
-        m_memAllocEnts.push_back(c);
+    {        
+        Circle circle(pos, radius, color);
+        circle.setData();
+        PrepareForRender();
+        m_vertexBuffer->addVertexData(circle.getData(), circle.getNumVerticies());
+        m_indexBuffer->updateIndicies(circle.getNumIndicies());
+        m_vertexBuffer->setDynamicGeometry();
+        m_vertexBuffer->Bind();
+        m_indexBuffer->Bind();
+        glDrawElements(GL_TRIANGLES, m_indexBuffer->Count(), GL_UNSIGNED_INT, nullptr);
     }
     void Renderer::Draw(const Vertex* verticies, size_t count, uint32_t primitive)
-    {
-        //glClear(GL_COLOR_BUFFER_BIT);
+    {        
+        PrepareForRender();
         m_vertexBuffer->clearVertexBuffer();
         m_vertexBuffer->addVertexData(verticies, count);
-        if (m_camera != nullptr)
-        {
-            m_camera->OnUpdate();
-            m_view = m_camera->GetTransform();
-        }
-        m_MVP = m_projection * m_view;
-        m_shaderProgram->addMatrix4fv(m_MVP, "u_MVP");
         m_vertexBuffer->setDynamicGeometry();
         m_vertexBuffer->Bind();
         glDrawArrays(primitive, 0, m_vertexBuffer->Count());

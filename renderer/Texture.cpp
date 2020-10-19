@@ -23,9 +23,8 @@ namespace ap {
 		
 	}
 	Texture::Texture()
-		: m_filePath(""), m_width(0), m_height(0), m_bpp(0), m_buffer(nullptr)
+		: m_filePath(""), m_width(0), m_height(0), m_bpp(0), m_buffer(nullptr), m_renderID(0)
 	{
-
 	}
 	void Texture::LoadFromFile(const char* file)
 	{
@@ -53,8 +52,10 @@ namespace ap {
 		if (m_buffer != nullptr)
 			stbi_image_free(m_buffer);
 	}
+	uint32_t Texture::TextureID() const { return m_renderID; }
 	void Texture::Bind(uint32_t slot) const  // slot is optional
 	{		
+		glBindTexture(GL_TEXTURE_2D, m_renderID);
 		glBindTextureUnit(slot, m_renderID);		
 	}
 	void Texture::UnBind() const
