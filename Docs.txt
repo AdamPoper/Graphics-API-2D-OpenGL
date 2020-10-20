@@ -1,0 +1,94 @@
+Documentation for AP2DGL
+
+Intitial Set up
+
+#include <AP2DGL/renderer.h>
+
+int main()
+{
+  ap::Window window(1280.0f, 720.0f, "Hello, World!");
+  ap::Renderer renderer(&window);
+  
+  while(window.isOpen())
+  {
+    renderer.ClearRenderBuffer();
+    renderer.onUpdate();
+    window.onUpdate();
+  }
+  return 0;
+}
+
+Include the renderer because it includes all the drawing functionality.
+First make an instance of the window class with a size and a title.
+Next, make an instance of the renderer class (there can only be one) and give it the address of the window because the renderer needs it for knowing the size for glViewPort().
+window.isOpen() returns true while the glfw window is open and false otherwise.
+renderer.ClearRenderBuffer() calls glClear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT) to clear the screen and prepare it for rendering next.
+renderer.onUpdate does a lot of stuff but the most important part is that is has one draw call glDrawElements because it collects all the vertex and index data from the entites
+and batches them all together in a single draw call for better performance. So this finction is mostly for the batch rendering part of the renderer. There are other methods of the 
+renderer class like renderer.DrawQuad(position, size, color/texture) which creates a stack allocated quad object and performs a single draw call of glDrawElements to render it.
+window.onUpdate() is for polling events, swapping the buffers, and updating the window size.
+
+Drawing Shapes:
+
+drawing shapes is easy. A shape is a type of entity and the 3 main types are Quads, triangles, and circles. 
+
+int main()
+{
+  ap::Window window(1280.0f, 720.0f, "Hello, World!");
+  ap::Renderer renderer(&window);
+  
+  ap::Quad quad(ap::Vec2f(500.0f, 100.0f), ap::Vec2f(100.0f, 100.0f), ap::Color::Orange);
+  ap::Triangle tri;
+  tri.setPosition(ap::Vec2f(100.0f, 100.0f));
+  tri.setSize(ap::Vec2f(50.0f, 100.0f));
+  ap::Circle circle(ap::Vec2f(200.0f, 200.0f), 45.0f, ap::Color::Blue);
+  
+  while(window.isOpen())
+  {
+    renderer.ClearRenderBuffer();
+    renderer.Draw(&quad);
+    renderer.Draw(&tri);
+    renderer.Draw(&circle);
+    renderer.onUpdate();
+    window.onUpdate();
+  }
+  return 0;
+}
+
+There is also ap::Sprite which is a quad that gets initialized with a texture and automatically takes its size.
+There is also ap::RenderEntity which is similar to the other shapes but can use any number of verticies.
+ap::RenderEntity(size_t verticies);
+ap::RenderEntity re(8); creates an octagon;
+the circle class is just a RenderEntity with a fixed 32 verticies.
+
+Colors and textures:
+
+namespace ap {
+    Vec4f Color::Blue = { 0.0f, 0.0f, 1.0f, 1.0f };
+    Vec4f Color::Red = { 1.0f, 0.0f, 0.0f, 1.0f };
+    Vec4f Color::Green = { 0.0f, 1.0f, 0.0f, 1.0f };
+    Vec4f Color::Cyan = { 0.0f, 1.0f, 1.0f, 1.0f };
+    Vec4f Color::Pink = { 1.0f, 0.0f, 1.0f, 1.0f };
+    Vec4f Color::Purple = { 0.8f, 0.0f, 0.8f, 1.0f };
+    Vec4f Color::White = { 1.0f, 1.0f, 1.0f, 1.0f };
+    Vec4f Color::Gray = { 0.5f, 0.5f, 0.5f, 1.0f };
+    Vec4f Color::Black = { 0.0f, 0.0f, 0.0f, 1.0f };
+    Vec4f Color::Yellow = { 1.0f, 1.0f, 0.0f, 1.0f };
+    Vec4f Color::Orange = { 1.0f, 0.6f, 0.2f, 1.0f };
+}
+
+Colors are just 4 component vectors with red, green, blue, and alpha. These are the pre defined ones for easy access. 
+Custom colors can be set easily with setting a specific ap::Vec4f. Default color for all entities is white.
+
+Texture(const std::string& file);
+textures are loaded from the file specified and can be applied to quads, sprites, and triangles. Not circles because I didn't figure out how to do that.
+ap::Texture tex("res/textures/tex.png");
+ap::Quad q;
+q.setTexture(&tex);
+
+Textures can also be bound and unbound at will with void Bind(uint32_t slot = 0) const and void UnBind() const;
+I allowed this because I also wanted this API to be easily used with other OpenGL code.
+
+... to be continued
+
+
