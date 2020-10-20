@@ -89,6 +89,4 @@ q.setTexture(&tex);
 Textures can also be bound and unbound at will with void Bind(uint32_t slot = 0) const and void UnBind() const;
 I allowed this because I also wanted this API to be easily used with other OpenGL code.
 
-... to be continued
-
-
+To update the textures of sprites, call update(ap::Texture* t) on any sprite.
