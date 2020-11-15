@@ -72,6 +72,8 @@ void ShaderProgram::setUniform1i(int value, const std::string& name)
 
 	glUniform1i(pos, value);
 	std::cout << "GL Error: " << glGetError() << " " << __FILE__ << " " << __LINE__ << std::endl;
+	pos = glGetUniformLocation(m_renderID, "u_manualColor");
+	glUniform1i(pos, 1);
 }
 void ShaderProgram::setUniform1iv(int* samplers, size_t size, const std::string& name)
 {
@@ -80,4 +82,17 @@ void ShaderProgram::setUniform1iv(int* samplers, size_t size, const std::string&
 	std::cout << "GL Error: " << glGetError() << " " << __FILE__ << " " << __LINE__ << std::endl;
 	glUniform1iv(pos, size, samplers);
 	std::cout << "GL Error: " << glGetError() << " " << __FILE__ << " " << __LINE__ << std::endl;
+}
+void ShaderProgram::setUniform4f(float x, float y, float z, float w, const std::string& name)
+{
+	int pos = glGetUniformLocation(m_renderID, name.c_str());
+	glUniform4f(pos, x, y, z, w);
+}
+void ShaderProgram::Bind() const
+{
+	glUseProgram(m_renderID);
+}
+void ShaderProgram::UnBind() const
+{
+	glUseProgram(0);
 }

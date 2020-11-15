@@ -34,10 +34,22 @@ namespace ap {
 	{
 		return m_verticies.data();
 	}	
+	Vertex* Entity::getData()
+	{
+		return m_verticies.data();
+	}
 	const float Entity::getTextureIndex() const
 	{
 		return m_textureIndex;
-	}	
+	}
+	Vertex& Entity::operator[](int index)
+	{
+		return m_verticies[index];
+	}
+	const Vertex& Entity::operator[](int index) const
+	{
+		return m_verticies[index];
+	}
 	void Entity::setTexture(Texture* tex)
 	{
 		if (s_texturesCache.find(tex) == s_texturesCache.end())
@@ -139,11 +151,19 @@ namespace ap {
 			v.textureSlot = m_textureIndex;
 			v.hasTexture = m_hasTexture ? 1.0f : 0.0f;			
 		}
-		
-		glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(m_position.x, m_position.y, 1.0f))
-			* glm::scale(glm::mat4(1.0f), glm::vec3(m_size.x, m_size.y, 1.0f))
-			* glm::rotate(glm::mat4(1.0f), glm::radians(m_rotation), glm::vec3(0.0f, 0.0f, 1.0f));
-
+		glm::mat4 transform;
+		// if it is a perfect square then perform the matrix multiplication for rotation
+		if(m_size.x == m_size.y)
+		{
+			transform = glm::translate(glm::mat4(1.0f), glm::vec3(m_position.x, m_position.y, 1.0f))
+				* glm::scale(glm::mat4(1.0f), glm::vec3(m_size.x, m_size.y, 1.0f))
+				* glm::rotate(glm::mat4(1.0f), glm::radians(m_rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+		}			
+		else // if not then dont do the rotation matrix math for the transform
+		{
+			transform = glm::translate(glm::mat4(1.0f), glm::vec3(m_position.x, m_position.y, 1.0f))
+				* glm::scale(glm::mat4(1.0f), glm::vec3(m_size.x, m_size.y, 1.0f));				
+		}
 		glm::vec4 positions[4];		
 		positions[0] = { -0.5f,  0.5f, 0.0f, 1.0f };
 		positions[1] = {  0.5f,  0.5f, 0.0f, 1.0f };
@@ -152,7 +172,34 @@ namespace ap {
 
 		for (int i = 0; i < s_numVerticies; i++)
 			m_verticies[i].position = transform * positions[i];
+
+		if (m_size.x != m_size.y) // if its a rectangle then rotate the verticies this way
+		{						// I don't know how it works but some how it does
+			for (int i = 0; i < 4; i++)
+			{
+				float theta = glm::radians(m_rotation);
+				float x = m_verticies[i].position.x;
+				float cx = m_position.x;
+				float y = m_verticies[i].position.y;
+				float cy = m_position.y;
+				float tempX = x - cx;
+				float tempY = y - cy;
+
+				float rotatedX = tempX * cos(theta) - tempY * sin(theta);
+				float rotatedY = tempX * sin(theta) + tempY * cos(theta);
+
+				// translate back
+				x = rotatedX + cx;
+				y = rotatedY + cy;
+				m_verticies[i].position.x = x;
+				m_verticies[i].position.y = y;
+			}			
+		}
 		applyTexCoords();		
+	}
+	float Quad::getRotation() const
+	{
+		return m_rotation;
 	}
 	bool Quad::setSubTexPoint(ap::Vec2f pos)
 	{
@@ -225,7 +272,10 @@ namespace ap {
 		m_color    = { 1.0f, 1.0f, 1.0f, 1.0f };  // white by default		
 		m_type = EntityID::TRIANGLE;
 	}
-	
+	float Triangle::getRotation() const
+	{
+		return m_rotation;
+	}
 	void Triangle::setData()
 	{
 		for (auto& v : m_verticies)
@@ -234,10 +284,10 @@ namespace ap {
 			v.textureSlot = m_textureIndex;
 			v.hasTexture  = m_hasTexture ? 1.0f : 0.0f;
 		}		
-	
+
 		m_verticies[0].position.x = m_position.x;
 		m_verticies[0].position.y = m_position.y;
-		m_verticies[1].position.x = m_position.x + (m_size.x / 2.0f);
+		m_verticies[1].position.x = (m_position.x + (m_size.x / 2.0f));
 		m_verticies[1].position.y = m_position.y + m_size.y;
 		m_verticies[2].position.x = m_position.x - (m_size.x / 2.0f);
 		m_verticies[2].position.y = m_position.y + m_size.y;
@@ -387,6 +437,7 @@ namespace ap {
 	{
 		m_colorCache[index] = c;
 	}
+	float RenderEntity::GetRadius() const { return m_radius; }
 	void RenderEntity::setData()
 	{
 		// the verticies are created by using a center position, m_position, and like a circle, the position of the verticies are calculated with sin and cos

@@ -65,7 +65,7 @@ namespace ap {
 	{
 		int w, h;
 		glfwGetWindowSize(m_window, &w, &h);
-		m_width = (float)w; m_height = (float)h;
+		m_width = (float)w; m_height = (float)h;		
 		glfwSwapBuffers(m_window);
 		glfwPollEvents();
 	}
@@ -99,4 +99,6 @@ namespace ap {
 			return false;
 		return s_keys[keycode];
 	}
+	void Window::EnableVSync() const { glfwSwapInterval(1); }
+	void Window::DisableVSync() const { glfwSwapInterval(0); }
 }
