@@ -41,8 +41,11 @@ namespace ap {
 		const Vec2f& getPosition() const;
 		const Vec4f& getColor() const;
 		const Vertex* getData() const;	
+		Vertex* getData();
 		bool hasTexture() const;
 		EntityID Type() const;
+		Vertex& operator[](int index);
+		const Vertex& operator[](int index) const;
 	protected:
 		virtual void setData() = 0;
 		const float getTextureIndex() const;
@@ -75,6 +78,7 @@ namespace ap {
 		const size_t getNumIndicies()  override;
 		const size_t getNumVerticies() override;
 		void rotate(float degrees)     override;
+		float getRotation() const;
 		bool setSubTexPoint(ap::Vec2f pos);
 		bool setSubTexSize(ap::Vec2f size);
 		static const size_t s_numIndicies;
@@ -87,11 +91,13 @@ namespace ap {
 	};
 	class Triangle : public Entity
 	{
+		friend class Renderer;
 	public:
 		Triangle();		
 		const size_t getNumIndicies()  override;
 		const size_t getNumVerticies() override;
 		void rotate(float degrees)     override;
+		float getRotation() const;
 		static const size_t s_numIndicies;
 		static const size_t s_numVerticies;
 	private:				
@@ -119,7 +125,6 @@ namespace ap {
 		float m_v1Degrees, m_v2Degrees;
 		float m_radius;
 	};
-	
 	// the only difference between Sprite and Quad is that Sprite automatically takes the size of the texture unless otherwise specified
 	class Sprite : public Quad
 	{
@@ -139,6 +144,7 @@ namespace ap {
 		RenderEntity(size_t verticies, float size);
 		void setVertexCount(size_t verticies);
 		void setRadius(float r);
+		float GetRadius() const;
 		const size_t getNumIndicies()  override;
 		const size_t getNumVerticies() override;
 		void rotate(float degrees) override;

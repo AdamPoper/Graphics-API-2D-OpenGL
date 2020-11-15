@@ -24,9 +24,11 @@ namespace ap {
 		void setWindowSize(const Vec2f& size);
 		static bool isKeyPressed(uint32_t keycode);
 		static bool isMouseButtonPressed(uint32_t buttCode);
-		float Width() const { return m_width; }
+		float Width()  const { return m_width;  }
 		float Height() const { return m_height; }
 		GLFWwindow* glfw_ptr() const { return m_window; }
+		void EnableVSync()  const;
+		void DisableVSync() const;
 	private:
 		float m_width, m_height;
 		bool m_isOpen = false;

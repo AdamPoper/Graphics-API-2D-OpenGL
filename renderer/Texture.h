@@ -15,16 +15,17 @@ namespace ap {
 		~Texture();
 		friend class Renderer;
 		friend class Entity;
-		inline int Width()  { return m_width; }
+		inline int Width()  { return m_width;  }
 		inline int Height() { return m_height; }
 		void LoadFromFile(const char* file);
 		void Bind(uint32_t slot = 0) const;
 		void UnBind() const;
 		uint32_t TextureID() const;
+		const uint8_t* GetTextureData() const;
 	private:
 		uint32_t m_renderID;
 		std::string m_filePath;
-		unsigned char* m_buffer;
+		uint8_t* m_buffer;
 		int m_width, m_height, m_bpp;		
 	};
 }

@@ -14,6 +14,9 @@ public:
 	void addMatrix4fv(const glm::mat4& mat, const std::string& name);
 	void setUniform1i(int value, const std::string& name);
 	void setUniform1iv(int* samplers, size_t size, const std::string& name);
+	void setUniform4f(float x, float y, float z, float w, const std::string& name);
+	void Bind() const;
+	void UnBind() const;
 private:
 	void LoadShader(const char* path, std::string& src);
 	void CompileShader(std::string& src, uint32_t shader);
