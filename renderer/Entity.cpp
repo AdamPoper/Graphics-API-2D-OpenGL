@@ -4,6 +4,8 @@ namespace ap {
 
 	Entity::~Entity()
 	{
+		std::cout << "Deleted outline vertices" << std::endl;
+		delete[] m_outlineBuffer;
 	}
 	Entity::Entity()
 	{
@@ -12,6 +14,7 @@ namespace ap {
 		m_color = { 1.0f, 1.0f, 1.0f, 1.0f };  // white by default		
 		m_texture = nullptr;
 		m_textureIndex = NULL;
+		m_outlineBuffer = nullptr;
 	}
 	EntityID Entity::Type() const { return m_type; }
 	
@@ -49,6 +52,22 @@ namespace ap {
 	const Vertex& Entity::operator[](int index) const
 	{
 		return m_verticies[index];
+	}
+	float Entity::getOutLineSize() const
+	{
+		return m_outlineSize;
+	}
+	const ap::Vec4f& Entity::getOutLineColor() const
+	{
+		return m_outlineColor;
+	}
+	void Entity::setOutLineColor(const ap::Vec4f& color)
+	{
+		m_outlineColor = color;
+	}
+	void Entity::setOutLineSize(float size)
+	{
+		m_outlineSize = size;
 	}
 	void Entity::setTexture(Texture* tex)
 	{
@@ -110,11 +129,14 @@ namespace ap {
 			m_verticies.emplace_back(Vertex());
 		m_size = { 0.0f, 0.0f };
 		m_position = { 0.0f, 0.0f };
-		m_color = { 1.0f, 1.0f, 1.0f, 1.0f };  // white by default		
-		m_type = EntityID::QUAD;
+		m_color	  = { 1.0f, 1.0f, 1.0f, 1.0f };  // white by default		
+		m_type	  = EntityID::QUAD;
 		m_texPos  = { 0.0f, 0.0f };
 		m_texSize = { 1.0f, 1.0f };
 		m_texture = nullptr;
+		m_outlineBuffer = new ap::Vertex[4];
+		m_outlineColor  = ap::Vec4f(1.0f, 1.0f, 1.0f, 1.0f);
+		m_outlineSize = 0.0f;
 	}
 	Quad::Quad(const Vec2f& pos, const Vec2f& size, const Vec4f& color)
 	{
@@ -128,6 +150,9 @@ namespace ap {
 		m_texPos  = { 0.0f, 0.0f };
 		m_texSize = { 1.0f, 1.0f };
 		m_texture = nullptr;
+		m_outlineBuffer = new ap::Vertex[4];
+		m_outlineColor = ap::Vec4f(1.0f, 1.0f, 1.0f, 1.0f);
+		m_outlineSize = 0.0f;
 	}
 	Quad::Quad(const Vec2f& pos, const Vec2f& size, Texture* tex)
 	{
@@ -142,7 +167,10 @@ namespace ap {
 		m_texPos  = { 0.0f, 0.0f };
 		m_texSize = { 1.0f, 1.0f };
 		m_color   = ap::Color::White;
-	}
+		m_outlineBuffer = new ap::Vertex[4];
+		m_outlineColor = ap::Vec4f(1.0f, 1.0f, 1.0f, 1.0f);
+		m_outlineSize = 0.0f;
+	}	
 	void Quad::setData()
 	{
 		for (auto& v : m_verticies)
@@ -196,7 +224,12 @@ namespace ap {
 			}			
 		}
 		applyTexCoords();		
-	}
+		for (int i = 0; i < s_numVerticies; i++)
+		{
+			m_outlineBuffer[i].position = m_verticies[i].position;
+			m_outlineBuffer[i].color = m_outlineColor;
+		}
+	}	
 	float Quad::getRotation() const
 	{
 		return m_rotation;

@@ -44,6 +44,10 @@ namespace ap {
 		Vertex* getData();
 		bool hasTexture() const;
 		EntityID Type() const;
+		void setOutLineSize(float size);
+		void setOutLineColor(const ap::Vec4f& color);
+		float getOutLineSize() const;
+		const ap::Vec4f& getOutLineColor() const;
 		Vertex& operator[](int index);
 		const Vertex& operator[](int index) const;
 	protected:
@@ -67,6 +71,9 @@ namespace ap {
 		static float s_nextTextureIndex;
 		bool m_hasTexture = false;
 		EntityID m_type;
+		ap::Vertex* m_outlineBuffer;
+		ap::Vec4f m_outlineColor;
+		float m_outlineSize;
 	};
 	class Quad : public Entity
 	{
@@ -74,20 +81,20 @@ namespace ap {
 		friend class Renderer;
 		Quad();		
 		Quad(const Vec2f& pos, const Vec2f& size, const Vec4f& color);
-		Quad(const Vec2f& pos, const Vec2f& size, Texture* tex);
+		Quad(const Vec2f& pos, const Vec2f& size, Texture* tex);	
 		const size_t getNumIndicies()  override;
 		const size_t getNumVerticies() override;
 		void rotate(float degrees)     override;
 		float getRotation() const;
 		bool setSubTexPoint(ap::Vec2f pos);
-		bool setSubTexSize(ap::Vec2f size);
+		bool setSubTexSize(ap::Vec2f size);		
 		static const size_t s_numIndicies;
 		static const size_t s_numVerticies;		
 	private:
 		void applyTexCoords();
 		void setData() override;		
 		float m_rotation = 0.0f;	// expressed as degrees
-		glm::vec2 m_texPos, m_texSize, m_originOffset;
+		glm::vec2 m_texPos, m_texSize, m_originOffset;		
 	};
 	class Triangle : public Entity
 	{

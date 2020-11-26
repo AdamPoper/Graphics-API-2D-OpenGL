@@ -22,7 +22,7 @@ namespace ap {
         int samplers[32] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31 };
         m_shaderProgram->setUniform1iv(samplers, 32, "u_Texture");
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);      
-        glEnable(GL_MULTISAMPLE);  // make sure MSAA is enbled
+        glEnable(GL_MULTISAMPLE);  // make sure MSAA is enabled
     }
     Renderer::~Renderer()
     {
@@ -62,12 +62,17 @@ namespace ap {
             m_vertexBuffer->addVertexData(e->getData(), e->getNumVerticies());
             m_indexBuffer->updateIndicies(e->getNumIndicies());    
             if (e->hasTexture())  // only bind texture if the entity has one
-                e->getTexture()->Bind((uint32_t)e->getTextureIndex());                                                      
+                e->getTexture()->Bind((uint32_t)e->getTextureIndex());                                                                  
         }         
         m_vertexBuffer->setDynamicGeometry();       
         glDrawElements(GL_TRIANGLES, m_indexBuffer->Count(), GL_UNSIGNED_INT, nullptr);
+        for (auto& e : m_entities)
+        {
+            glLineWidth(e->m_outlineSize);
+            Draw(e->m_outlineBuffer, e->getNumVerticies(), PRIMITIVES::LINE_LOOP);
+        }
         m_entities.clear();            
-        m_vertexBuffer->clearVertexBuffer();           
+        m_vertexBuffer->clearVertexBuffer();         
     }
     void Renderer::Blend() const
     {

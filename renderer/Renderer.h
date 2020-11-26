@@ -44,7 +44,7 @@ namespace ap {
 	private:
 		int SubmitPixelReadData(const char* filename, const ap::Vec2f& start, const ap::Vec2f& dimensions, GLenum format, size_t channelCount, IMAGE_TYPE type);
 		void Blend() const;		
-		void PrepareForRender();
+		void PrepareForRender();		
 		friend class Entity;
 	private:
 		VertexArray m_vertexArray;
@@ -52,7 +52,7 @@ namespace ap {
 		IndexBuffer* m_indexBuffer;
 		ShaderProgram* m_shaderProgram;
 		static uint32_t s_referenceCounter;
-		std::vector<Entity*> m_entities;					
+		std::vector<Entity*> m_entities;		
 		glm::mat4 m_MVP;
 		glm::mat4 m_view;
 		glm::mat4 m_projection;
