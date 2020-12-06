@@ -32,8 +32,21 @@ namespace ap {
         delete m_shaderProgram;   
     }
     void Renderer::Draw(Entity* ent)
-    {                         
-       m_entities.push_back(ent);       
+    {   
+        PrepareForRender();
+        ent->setData();
+        m_vertexBuffer->addVertexData(ent->getData(), ent->getNumVerticies());
+        m_indexBuffer->updateIndicies(ent->getNumIndicies());
+        if (ent->hasTexture())
+            ent->getTexture()->Bind((uint32_t)ent->getTextureIndex());
+        m_vertexBuffer->setDynamicGeometry();
+        glDrawElements(GL_TRIANGLES, m_indexBuffer->Count(), GL_UNSIGNED_INT, nullptr);
+        if (ent->m_outlineSize != 0.0f)
+        {
+            glLineWidth(ent->m_outlineSize);
+            Draw(ent->m_outlineBuffer, ent->getNumVerticies(), PRIMITIVES::LINE_LOOP);
+        }
+        m_vertexBuffer->clearVertexBuffer();
     }  
     void Renderer::PrepareForRender()
     {
@@ -53,26 +66,42 @@ namespace ap {
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
-    void Renderer::onUpdate()
-    {                    
+    void Renderer::AddToBatchRenderer(Entity* ent)
+    {
+        m_entities.push_back(ent);
+    }
+    /// <summary>
+        /// this is the implementation of the batch renderer. I realized that there are logistic problems
+        /// with only having a batch renderer. So the renderer has functions for single draw calls
+        /// as well as the ability to add entities to a batch to be drawn together
+    /// </summary>
+    void Renderer::DrawBatchRenderer()
+    {        
         PrepareForRender();
         for (auto& e : m_entities)
-        {                 
+        {
             e->setData();
             m_vertexBuffer->addVertexData(e->getData(), e->getNumVerticies());
-            m_indexBuffer->updateIndicies(e->getNumIndicies());    
+            m_indexBuffer->updateIndicies(e->getNumIndicies());
             if (e->hasTexture())  // only bind texture if the entity has one
-                e->getTexture()->Bind((uint32_t)e->getTextureIndex());                                                                  
-        }         
-        m_vertexBuffer->setDynamicGeometry();       
-        glDrawElements(GL_TRIANGLES, m_indexBuffer->Count(), GL_UNSIGNED_INT, nullptr);
-        for (auto& e : m_entities)
-        {
-            glLineWidth(e->m_outlineSize);
-            Draw(e->m_outlineBuffer, e->getNumVerticies(), PRIMITIVES::LINE_LOOP);
+                e->getTexture()->Bind((uint32_t)e->getTextureIndex());
         }
-        m_entities.clear();            
-        m_vertexBuffer->clearVertexBuffer();         
+        m_vertexBuffer->setDynamicGeometry();
+        glDrawElements(GL_TRIANGLES, m_indexBuffer->Count(), GL_UNSIGNED_INT, nullptr);       
+        m_vertexBuffer->clearVertexBuffer();
+        // entity outlines don't get included in the batch cause it isn't really possible
+        // so they're drawn anyway but will always get drawn over everything else
+        for (auto e : m_entities)
+        {
+            if (e->m_outlineSize != 0.0f)
+            {
+                m_vertexBuffer->addVertexData(e->m_outlineBuffer, e->getNumVerticies());  
+                m_vertexBuffer->setDynamicGeometry();
+                glDrawArrays(GL_LINE_LOOP, 0, m_vertexBuffer->Count());
+                m_vertexBuffer->clearVertexBuffer();
+            }
+        }       
+        m_entities.clear();
     }
     void Renderer::Blend() const
     {

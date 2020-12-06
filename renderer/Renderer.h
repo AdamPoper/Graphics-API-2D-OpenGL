@@ -20,15 +20,14 @@ namespace ap {
 		Renderer(const Window* window);
 		Renderer(const Renderer&) = delete;  // no copy constructors allowed
 		~Renderer();  // rendering components are heap allocated
-		void Draw(Entity* ent);  // add entity vertex data		
+		void Draw(Entity* ent);  // draw 1 entity with a single draw call		
+		void AddToBatchRenderer(Entity* entity);  // for drawing to the batch renderer
 		void Draw(const Vertex* verticies, size_t count, uint32_t primitive);  
-		void onUpdate();
+		void DrawBatchRenderer();
 		void addCamera(Camera* cam);
 		void RemoveCamera();
 		void BindDefaultShader();
 		void UnBindDefaultShader();
-		glm::mat4 GetCurrentMVP() const;
-		ShaderProgram* GetDefaultShader();
 		void ClearRenderBuffer();
 		void SetRenderClearColor(const Vec3f& c) const;	
 		void DrawQuad(const Vec2f& pos, const Vec2f& size, const Vec4f& color);
@@ -41,6 +40,8 @@ namespace ap {
 		int ScreenShot(const char* filename);
 		int ScreenShot(const char* filename, const ap::Vec2f& start, const ap::Vec2f& dimensions);
 		int ScreenShot(const char* filename, const ap::Vec2f& start, const ap::Vec2f& dimensions, GLenum format, IMAGE_TYPE type);
+		glm::mat4 GetCurrentMVP() const;
+		ShaderProgram* GetDefaultShader();
 	private:
 		int SubmitPixelReadData(const char* filename, const ap::Vec2f& start, const ap::Vec2f& dimensions, GLenum format, size_t channelCount, IMAGE_TYPE type);
 		void Blend() const;		
@@ -81,6 +82,5 @@ namespace ap {
 		BLUE = GL_BLUE,
 		GREEN = GL_GREEN,
 		ALPHA = GL_ALPHA,
-	};
-	
+	};		
 }

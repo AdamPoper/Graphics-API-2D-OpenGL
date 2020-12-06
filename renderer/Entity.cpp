@@ -3,8 +3,7 @@
 namespace ap {
 
 	Entity::~Entity()
-	{
-		std::cout << "Deleted outline vertices" << std::endl;
+	{		
 		delete[] m_outlineBuffer;
 	}
 	Entity::Entity()
@@ -202,8 +201,10 @@ namespace ap {
 			m_verticies[i].position = transform * positions[i];
 
 		if (m_size.x != m_size.y) // if its a rectangle then rotate the verticies this way
-		{						// I don't know how it works but some how it does
-			for (int i = 0; i < 4; i++)
+		{		// I wasn't actually smart enough to have figured out the math for this
+				// so I copied this from like stack overflow or something.
+			    // I don't know how it works but somehow it does
+			for (int i = 0; i < s_numVerticies; i++)
 			{
 				float theta = glm::radians(m_rotation);
 				float x = m_verticies[i].position.x;
